@@ -7,6 +7,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Put,
     Request,
     UseGuards
   } from '@nestjs/common';
@@ -20,6 +21,7 @@ import {
   import { ExpressRequestWithUser } from './interfaces/express-request-with-user.interface';
   import { Public } from 'src/common/decorators/public.decorator';
   import { IsMineGuard } from 'src/common/guards/is-mine.guard';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
   @Controller('users')
   export class UsersController {
@@ -27,23 +29,34 @@ import {
     constructor(private readonly usersService: UsersService) {}
     @Public()
     @Post('register')
+    @ApiOperation({
+      summary: 'Register a new user',
+      operationId: 'create',
+    })
+    @ApiResponse({
+      status: 201,
+      description: 'Created',
+      type: CreateUserDto,
+    })
     async registerUser(@Body() createUserDto: CreateUserDto): Promise<User> {
       // call users service method to register new user
       return this.usersService.registerUser(createUserDto);
     }
   
     @Post('login')
+    @Public()
     loginUser(@Body() loginUserDto: LoginUserDto): Promise<LoginResponse> {
       // call users service method to login user
       return this.usersService.loginUser(loginUserDto);
     }
-  
+    
+    @ApiBearerAuth('JWT-auth')
     @Get('me')
     me(@Request() req: ExpressRequestWithUser): UserPayload {
     return req.user;
     }
   
-    @Patch(':id')
+    @Put(':id')
     @UseGuards(IsMineGuard)
     async updateUser(
       @Param('id', ParseIntPipe) id: number,

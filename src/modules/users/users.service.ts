@@ -23,6 +23,10 @@ import {
   
     async registerUser(createUserDto: CreateUserDto): Promise<User> {
       try {
+        // check if password is correct by comparing it with the hashed password in the database
+        if (createUserDto.password !== createUserDto.confirmPassword) {
+          throw new UnauthorizedException("Password and confirm password don't match");
+        }
         // create new user using prisma client
         const newUser = await this.prisma.user.create({
           data: {
