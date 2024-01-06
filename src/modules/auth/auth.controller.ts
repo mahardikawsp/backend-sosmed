@@ -20,7 +20,7 @@ import {
   import { CreateUserDto } from './dtos/create-user.dto';
   import { UpdateUsertDto } from './dtos/update-user.dto';
   import { LoginUserDto } from './dtos/login-user.dto';
-  import { UsersService } from './users.service';
+  import { UsersService } from './auth.service';
   import { User } from '@prisma/client';
   import { LoginResponse, UserPayload } from './interfaces/users-login.interface';
   import { ExpressRequestWithUser } from './interfaces/express-request-with-user.interface';

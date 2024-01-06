@@ -6,13 +6,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
+  
 
     // Check here - Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('Superb API')
-    .setDescription('The Super API documentation')
+    .setTitle('Backend Sosmed')
+    .setDescription('Backend Sosmed documentation')
     .setVersion('1.0')
-    .addTag('superb')
+    .addTag('Backend')
     .addBearerAuth(
       {
         type: 'http',

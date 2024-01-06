@@ -7,9 +7,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
 import { PostsModule } from './modules/posts/posts.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '/uploads/img'),
+      serveStaticOptions: { index: false },
+    }),
     UsersModule,
     PostsModule,
     CoreModule,
