@@ -30,6 +30,7 @@ model Post {
   user_id     Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@fulltext([caption,tags])
 }
 
 model Like {

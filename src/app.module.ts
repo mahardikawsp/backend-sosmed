@@ -10,7 +10,7 @@ import { PostsModule } from './modules/posts/posts.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthModule } from './modules/auth/auth.module';
-
+import { LikesModule } from './modules/likes/likes.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -20,6 +20,7 @@ import { AuthModule } from './modules/auth/auth.module';
     UsersModule,
     AuthModule,
     PostsModule,
+    LikesModule,
     CoreModule,
     // add jwt module
     JwtModule.register({

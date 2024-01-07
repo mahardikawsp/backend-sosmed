@@ -21,7 +21,7 @@ import {
     ) {}
 
     async uploadPhoto(email: string, photo: Express.Multer.File): Promise<any> {
-      const photoPath = `dist/uploads/img/${photo.filename}`; // Menyimpan path foto ke database
+      const photoPath = `public/img/${photo.filename}`; // Menyimpan path foto ke database
       return this.prisma.user.updateMany({ where: { email:email }, data: { photo: photoPath } });
     }
   

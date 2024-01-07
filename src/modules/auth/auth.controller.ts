@@ -1,14 +1,6 @@
 import {
     Body,
     Controller,
-    Delete,
-    FileTypeValidator,
-    Get,
-    MaxFileSizeValidator,
-    Param,
-    ParseFilePipe,
-    ParseIntPipe,
-    Patch,
     Post,
     Put,
     Request,
@@ -22,7 +14,6 @@ import {
   import { AuthService } from './auth.service';
   import { User } from '@prisma/client';
   import { LoginResponse, UserPayload } from './interfaces/users-login.interface';
-  import { ExpressRequestWithUser } from './interfaces/express-request-with-user.interface';
   import { Public } from 'src/common/decorators/public.decorator';
   import { IsMineGuard } from 'src/common/guards/is-mine.guard';
   import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -32,7 +23,6 @@ import {
   @ApiTags('Auth')
   @Controller('auth')
   export class AuthController {
-    // inject users service
     constructor(private readonly AuthService: AuthService) {}
 
     @Public()
@@ -49,7 +39,7 @@ import {
     @UseInterceptors(
       FileInterceptor('photo', {
         storage: diskStorage({
-          destination: 'dist/uploads/img',
+          destination: 'public/img',
           filename: (req, photo, cb) => {
             let extArray = photo.mimetype.split("/");
             let extension = extArray[extArray.length - 1];

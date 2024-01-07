@@ -12,6 +12,7 @@ import {
     Post,
     Put,
     Request,
+    Res,
     UploadedFile,
     UseGuards,
     UseInterceptors
@@ -29,6 +30,7 @@ import {
   import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
   import { FileInterceptor } from '@nestjs/platform-express';
   import { diskStorage } from 'multer';
+  import { Response } from 'express';
   
   @ApiTags('Users')
   @Controller('users')
@@ -36,35 +38,6 @@ import {
     // inject users service
     constructor(private readonly usersService: UsersService) {}
 
-    // @Public()
-    // @Post('upload')
-    // @UseInterceptors(
-    //   FileInterceptor('file', {
-    //     storage: diskStorage({
-    //       destination: 'dist/uploads/img',
-    //       filename: (req, file, cb) => {
-    //         let extArray = file.mimetype.split("/");
-    //         let extension = extArray[extArray.length - 1];
-    //         cb(null, Date.now() + '.' + extension)
-    //         // cb(null, file.originalname);
-    //       },
-    //     }),
-    //   }),
-    // )
-    // public async uploadFile(@UploadedFile(
-    //   new ParseFilePipe({
-    //     validators: [
-    //       new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
-    //       new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
-    //     ],
-    //   }),
-    // )file: Express.Multer.File) {
-    //   return {
-    //     statusCode: 200,
-    //     data: file.path,
-    //   };
-    // }
-    
     @Public()
     @Post('register')
     @ApiOperation({
@@ -79,7 +52,7 @@ import {
     @UseInterceptors(
       FileInterceptor('photo', {
         storage: diskStorage({
-          destination: 'dist/uploads/img',
+          destination: 'public/img',
           filename: (req, photo, cb) => {
             let extArray = photo.mimetype.split("/");
             let extension = extArray[extArray.length - 1];
@@ -99,6 +72,10 @@ import {
     }
   
     @Post('login')
+    @ApiOperation({
+      summary: 'Login user',
+      operationId: 'login',
+    })
     @Public()
     loginUser(@Body() loginUserDto: LoginUserDto): Promise<LoginResponse> {
       // call users service method to login user
@@ -112,6 +89,10 @@ import {
     }
     
     @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+      summary: 'Update user',
+      operationId: 'update',
+    })
     @Put(':id')
     @UseGuards(IsMineGuard)
     async updateUser(
@@ -121,12 +102,16 @@ import {
       // call users service method to update user
       return this.usersService.updateUser(+id, updateUserDto);
     }
-  
-    // @Delete(':id')
+
+    @ApiBearerAuth('JWT-auth')
+    @Get('logout')
     // @UseGuards(IsMineGuard)
-    // async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<string> {
-    //   // call users service method to delete user
-    //   return this.usersService.deleteUser(+id);
-    // }
+    async logout(@Res() res: Response) {
+      // Untuk logout, hapus token dari klien
+      res.clearCookie('jwt_token');
+
+      res.status(200).json({ message: 'Logout successful' });
+    }
+  
   }
   

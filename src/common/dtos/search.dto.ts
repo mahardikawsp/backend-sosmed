@@ -11,5 +11,6 @@ export class QuerySearchDto {
   @IsNumberString()
   size?: string;
 
-  keyword: string;
+  caption: string;
+  tags : string;
 }

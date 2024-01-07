@@ -9,6 +9,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Put,
     Query,
     Request,
     UploadedFile,
@@ -25,7 +26,7 @@ import {
   import { QueryPaginationDto } from 'src/common/dtos/query-pagination.dto';
   import { QuerySearchDto } from 'src/common/dtos/search.dto';
   import { PaginateOutput } from 'src/common/utils/pagination.utils';
-  import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+  import { ApiBearerAuth,ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
   import { FileInterceptor } from '@nestjs/platform-express';
   import { diskStorage } from 'multer';
 
@@ -33,7 +34,6 @@ import {
   @ApiTags('Posts')
   @Controller('posts')
   export class PostsController {
-    // inject posts service
     constructor(private readonly postsService: PostsService) {}
   
     @Post()
@@ -65,16 +65,16 @@ import {
       @Body() createPostDto: { caption: string, tags:string,photo:string,user_id:number},
       @Request() req: ExpressRequestWithUser,
     ): Promise<CPost> {
-      // 💡 See this. set authorId to current user's id
       createPostDto.user_id = req.user.sub;
-      // if (photo) {
-      //   await this.postsService.uploadPhoto(createPostDto.user_id, photo); // Jika ada foto, simpan foto
-      // }
       return this.postsService.createPost(photo,createPostDto);
     }
     
     
     @Public()
+    @ApiOperation({
+      summary: 'Get all post with pagination',
+      operationId: 'get',
+    })
     @Get()
     @ApiQuery({ name: 'page' })
     @ApiQuery({ name: 'size' })
@@ -85,6 +85,10 @@ import {
       }
 
     @Public()
+    @ApiOperation({
+      summary: 'Get all post with keyword (caption,tags) and pagination',
+      operationId: 'get',
+    })
     @Get('search')
     @ApiQuery({ name: 'caption'})
     @ApiQuery({ name: 'tags'})
@@ -95,14 +99,40 @@ import {
     ): Promise<PaginateOutput<CPost>> {
         return this.postsService.getSearchPosts(query);
     }
-  
+
+    @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+      summary: 'Get all post by user with pagination and search keyword by caption, tags',
+      operationId: 'get',
+    })
+    @Get('list/:id')
+    @ApiQuery({ name: 'caption'})
+    @ApiQuery({ name: 'tags'})
+    @ApiQuery({ name: 'page' })
+    @ApiQuery({ name: 'size' })
+    getSearchPostsUsers(
+        @Param('id') postId: number,
+        @Query() query?: QuerySearchDto,
+    ): Promise<PaginateOutput<CPost>> {
+        return this.postsService.getSearchPostsUser(postId,query);
+    }
+    
+    @ApiOperation({
+      summary: 'get post by id',
+      operationId: 'get',
+    })
     @Public()
     @Get(':id')
     getPostById(@Param('id', ParseIntPipe) id: number): Promise<CPost> {
       return this.postsService.getPostById(id);
     }
-  
-    @Patch(':id')
+    
+    @ApiOperation({
+      summary: 'Update post',
+      operationId: 'update',
+    })
+    @Put(':id')
+    @ApiBearerAuth('JWT-auth')
     @UseGuards(IsMineGuard) //
     @UseInterceptors(
       FileInterceptor('photo', {
@@ -127,7 +157,12 @@ import {
     ): Promise<CPost> {
       return this.postsService.updatePost(photo, postId, updatePostDto);
     }
-  
+    
+    @ApiOperation({
+      summary: 'Delete post by id',
+      operationId: 'delete',
+    })
+    @ApiBearerAuth('JWT-auth')
     @Delete(':id')
     @UseGuards(IsMineGuard) //
     async deletePost(@Param('id', ParseIntPipe) id: number): Promise<string> {

@@ -67,9 +67,29 @@ import {
     }
 
     async getSearchPosts(query?: QuerySearchDto): Promise<PaginateOutput<Post>> {
+        const [posts, total] = await Promise.all([
+          await this.prisma.post.findMany({
+            where: { 
+              caption :  { contains : query.caption}, 
+              tags: { contains : query.tags}  
+            },
+            ...paginate(query),
+          }),
+          await this.prisma.post.count(),
+        ]);
+      
+        return paginateOutput<Post>(posts, total, query);
+    }
+
+    async getSearchPostsUser(id:number,query?: QuerySearchDto): Promise<PaginateOutput<Post>> {
+      const paramId = Number(id);
       const [posts, total] = await Promise.all([
         await this.prisma.post.findMany({
-          where: { caption :  { search : query.keyword}, tags: { search : query.keyword}  },
+          where: { 
+            user_id :  paramId,
+            caption: { contains : query.caption},
+            tags: { contains : query.tags}  
+          },
           ...paginate(query),
         }),
         await this.prisma.post.count(),
@@ -103,7 +123,7 @@ import {
         await this.prisma.post.findUniqueOrThrow({
           where: { id },
         });
-        
+
         const photoPath = `public/posts/${photo.filename}`;
         // update post using prisma client
         const updatedPost = await this.prisma.post.update({
