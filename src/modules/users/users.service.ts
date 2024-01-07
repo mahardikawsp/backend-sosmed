@@ -12,7 +12,7 @@ import {
   import { LoginUserDto } from './dtos/login-user.dto';
   import { JwtService } from '@nestjs/jwt';
   import { LoginResponse, UserPayload } from './interfaces/users-login.interface';
-  import { UpdateUsertDto } from './dtos/update-user.dto';
+  import { UpdateUserDto } from './dtos/update-user.dto';
   
   @Injectable()
   export class UsersService {
@@ -93,7 +93,7 @@ import {
       }
     }
   
-    async updateUser(id: number, updateUserDto: UpdateUsertDto): Promise<User> {
+    async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
       try {
         // find user by id. If not found, throw error
         await this.prisma.user.findUniqueOrThrow({

@@ -9,6 +9,7 @@ import { AuthGuard } from './common/guards/auth.guard';
 import { PostsModule } from './modules/posts/posts.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { join } from 'path';
       serveStaticOptions: { index: false },
     }),
     UsersModule,
+    AuthModule,
     PostsModule,
     CoreModule,
     // add jwt module

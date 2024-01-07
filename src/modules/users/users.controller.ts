@@ -18,7 +18,7 @@ import {
   } from '@nestjs/common';
   import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
   import { CreateUserDto } from './dtos/create-user.dto';
-  import { UpdateUsertDto } from './dtos/update-user.dto';
+  import { UpdateUserDto } from './dtos/update-user.dto';
   import { LoginUserDto } from './dtos/login-user.dto';
   import { UsersService } from './users.service';
   import { User } from '@prisma/client';
@@ -26,43 +26,44 @@ import {
   import { ExpressRequestWithUser } from './interfaces/express-request-with-user.interface';
   import { Public } from 'src/common/decorators/public.decorator';
   import { IsMineGuard } from 'src/common/guards/is-mine.guard';
-  import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+  import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
   import { FileInterceptor } from '@nestjs/platform-express';
   import { diskStorage } from 'multer';
-
+  
+  @ApiTags('Users')
   @Controller('users')
   export class UsersController {
     // inject users service
     constructor(private readonly usersService: UsersService) {}
 
-    @Public()
-    @Post('upload')
-    @UseInterceptors(
-      FileInterceptor('file', {
-        storage: diskStorage({
-          destination: 'dist/uploads/img',
-          filename: (req, file, cb) => {
-            let extArray = file.mimetype.split("/");
-            let extension = extArray[extArray.length - 1];
-            cb(null, Date.now() + '.' + extension)
-            // cb(null, file.originalname);
-          },
-        }),
-      }),
-    )
-    public async uploadFile(@UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
-        ],
-      }),
-    )file: Express.Multer.File) {
-      return {
-        statusCode: 200,
-        data: file.path,
-      };
-    }
+    // @Public()
+    // @Post('upload')
+    // @UseInterceptors(
+    //   FileInterceptor('file', {
+    //     storage: diskStorage({
+    //       destination: 'dist/uploads/img',
+    //       filename: (req, file, cb) => {
+    //         let extArray = file.mimetype.split("/");
+    //         let extension = extArray[extArray.length - 1];
+    //         cb(null, Date.now() + '.' + extension)
+    //         // cb(null, file.originalname);
+    //       },
+    //     }),
+    //   }),
+    // )
+    // public async uploadFile(@UploadedFile(
+    //   new ParseFilePipe({
+    //     validators: [
+    //       new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+    //       new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+    //     ],
+    //   }),
+    // )file: Express.Multer.File) {
+    //   return {
+    //     statusCode: 200,
+    //     data: file.path,
+    //   };
+    // }
     
     @Public()
     @Post('register')
@@ -109,22 +110,23 @@ import {
     me(@Request() req: ExpressRequestWithUser): UserPayload {
     return req.user;
     }
-  
+    
+    @ApiBearerAuth('JWT-auth')
     @Put(':id')
     @UseGuards(IsMineGuard)
     async updateUser(
       @Param('id', ParseIntPipe) id: number,
-      @Body() updateUserDto: UpdateUsertDto,
+      @Body() updateUserDto: UpdateUserDto,
     ): Promise<User> {
       // call users service method to update user
       return this.usersService.updateUser(+id, updateUserDto);
     }
   
-    @Delete(':id')
-    @UseGuards(IsMineGuard)
-    async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<string> {
-      // call users service method to delete user
-      return this.usersService.deleteUser(+id);
-    }
+    // @Delete(':id')
+    // @UseGuards(IsMineGuard)
+    // async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<string> {
+    //   // call users service method to delete user
+    //   return this.usersService.deleteUser(+id);
+    // }
   }
   
