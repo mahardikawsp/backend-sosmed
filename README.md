@@ -25,3 +25,6 @@ Mysql - backend-sosmed.sql
 ## ORM
 Prisma
 
+## Postman
+Backend-sosmed.postman_collection.json
+
